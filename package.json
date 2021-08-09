@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Lak Krishnan",
   "license": "ISC",
   "devDependencies": {
     "del": "^3.0.0",
@@ -19,5 +19,13 @@
     "gulp-uglify": "^3.0.1",
     "uglify": "^0.1.5"
   },
-  "description": ""
+  "description": "3D Floodzone",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lkrishnan/3DFloodzone.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lkrishnan/3DFloodzone/issues"
+  },
+  "homepage": "https://github.com/lkrishnan/3DFloodzone#readme"
 }
