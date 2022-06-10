@@ -1027,12 +1027,27 @@ function setRiskInfo( data ){
 					geometryfield: "shape",
 					source: "gis"
 				}
+			} ),
+			request.get( config.web_service_local + "v1/ws_geo_pointoverlay.php", {
+				handleAs: "json",
+				headers: { "X-Requested-With": "" },
+				query: {
+					x: data.x,
+					y: data.y,
+					srid: "2264", 
+					table: "jurisdiction_py", 
+					fields: "nme_juris",
+					geometryfield: "shape",
+					source: "gis"
+				}
 			} )
 		] ).then( function( results ){
 			var femafldpdata = results[ 0 ],
 				commfldpdata = results[ 1 ],
 				soidata = results[ 2 ],
+				jurisdata = results[ 3 ],
 				soi = ( soidata.length > 0 ? soidata[ 0 ].name : null ),
+				juris = ( jurisdata.length > 0 ? jurisdata[ 0 ].nme_juris : null ),
 				community_info = {
 					"charlotte": { no: "370159", name: "City of Charlotte" },
 					"davidson": { no: "370503", name: "Town of Davidson" }, 
@@ -1041,9 +1056,9 @@ function setRiskInfo( data ){
 					"mint hill": { no: "370539", name: "Town of Mint Hill" }, 
 					"matthews": { no: "370310", name: "Town of Matthews" }, 
 					"pineville": { no: "370160", name: "Town of Pineville" },    
-					"mecklenburg": { no: "370158", name: "Unincorporated Mecklenburg County" }
-					
-				};
+					"mecklenburg": { no: "370158", name: "Unincorporated Mecklenburg County" },
+					"stallings": { no: "370472", name: "Town of Stallings" }
+				}
 
 			if( femafldpdata.length > 0 ){
 				//floodplain insurance needed, incase of floodplain insurance we don't have to worry about community floodplain
@@ -1091,7 +1106,11 @@ function setRiskInfo( data ){
 			if( soi ){
 				//add mappanel to FIRM info table
 				query( "#firmtable" ).append( "<tr><th>Community Number</th><td>" + community_info[ soi ].no + "</td></tr>" );
-				query( "#firmtable" ).append( "<tr><th>Community Name</th><td>" + community_info[ soi ].name + "</td></tr>" );
+				
+				if( juris ){
+					query( "#firmtable" ).append( "<tr><th>Community Name</th><td>" + community_info[ soi ].name + ( juris === "MECK" && soi !== "mecklenburg" ? " - ETJ" : "" ) + "</td></tr>" );
+					
+				}
 				
 			}
 			
