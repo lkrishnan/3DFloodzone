@@ -258,7 +258,7 @@ function setElevData( data ){
 			headers: { "X-Requested-With": "" },
 			query: {
 				tax_pid: guessPIDinMAT( data.taxpid, data.groundpid ),
-				source: "elevation_certificates"
+				source: "EC_v2"
 			}
 		} ).then( function( results ){						
 			if( results.length > 0 ){

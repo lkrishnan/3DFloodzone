@@ -618,31 +618,32 @@ function finder( data ){
 				}	
 			} );
 		}
-			
-		//8. Query cama based on passed parameter(s) 
-		else if( data.groundpid || data.owner || data.stname ){
-			request.get( config.web_service_local + "v1/ws_owner_compid.php", {
+		
+		//8. Query cama based on passed parameter(s)
+		else if( data.groundpid || data.lastname || data.stname ){
+			request.get( config.web_service_local + "v1/ws_cama_taxparcelinfo.php", {
 				handleAs: "json",
 				headers: { "X-Requested-With": "" },
-				query: 
-				{
-					compid: ( data.groundpid ? data.groundpid : ""),
-					lastname: ( data.owner ? $.trim( data.owner.substring( 0, data.owner.indexOf( "," ) ) )  : "" ),
-					firstname: ( data.owner ? $.trim( data.owner.substring( data.owner.indexOf( "," ) + 1, data.owner.length ) )  : "" ),
+				query: {
+					compid: ( data.groundpid ? data.groundpid : "" ),
+					lastname: ( data.lastname ? data.lastname.trim( ) : "" ),
+					firstname: ( data.firstname ? data.firstname.trim( ) : "" ),
+					staddrno: ( data.staddrno ? data.staddrno : "" ),
 					stprefix: ( data.stprefix ? data.stprefix : "" ),
-					stname: ( data.stname ? data.stname : "" ),
+					stname: ( data.stname ? Format.escapeSingleQuote ( data.stname ) : "" ),
 					sttype: ( data.sttype ? data.sttype : "" ),
 					stsuffix: ( data.stsuffix ? data.stsuffix : "" ),
-					stmuni: ( data.stmuni ? data.stmuni : "" )					
+					stmuni: ( data.stmuni ? Format.juriscama( data.stmuni ) : "" )	
 				}
 			} ).then( function( camadata ){
-				if( camadata.length == 1 ){	//kick it back to finder function	
+				if( camadata.length == 1 ){	//kick it back to Main Search	
 					finder( {
-						"taxpid": camadata[ 0 ].pid.trim( ), 
-						"groundpid": camadata[ 0 ].common_pid.trim( )
+						taxpid: camadata[ 0 ].pid.trim( ), 
+						groundpid: camadata[ 0 ].common_pid.trim( ),
 					} );	
+									
 				}else if( camadata.length > 1 ){ //more taxpids associated with ground pid show results for user to select manually	
-					require( [ "dojo/dom", "mojo/SearchResultBoxLite" ], function( dom, SearchResultBoxLite ){
+					require ( [ "dojo/dom", "mojo/SearchResultBoxLite" ], function( dom, SearchResultBoxLite ){
 						var searchResultsContainer = dom.byId( "searchresultscont" );
 					
 						query( "#searchresultscont" ).innerHTML( "<h5><span class = 'note'>Are you looking for?</span></h5>" );
@@ -664,15 +665,11 @@ function finder( data ){
 								}
 							} ).placeAt ( searchResultsContainer );	
 						} );
+												
+						showSidebar( "searchresultscont", "risktoggle" );
 						
-						//hide and show appropriate divs		
-						query( "#errorcont, #propinfocont" ).addClass( "hidden" );
-						query( "#searchresultscont" ).removeClass( "hidden" ); 	
-						
-						//show search results div
-						showSidebar ( "propcont", "proptoggle" );
 					} );
-				}else{ //no records in cama match search string
+				}else{ //no records in cama match search string 
 					if( data.stname ){ //zoom to the centroid of the road
 						request.get( config.web_service_local + "v1/ws_geo_getcentroid.php", {
 							handleAs: "json",
@@ -699,6 +696,9 @@ function finder( data ){
 				}
 			} );
 		}
+
+			
+		
 	} );
 }
 
@@ -928,13 +928,19 @@ function setPropInfo( data ){
 				if( item.photo_url.trim( ).length > 0 ){
 					//if the property photo exisits at the location add it
 					var imgdate = item.photo_date;
-							
-					propPhotoGallery.addPhoto( { 
-						url: item.photo_url.trim( ), 
-						photo_date: item.photo_date,
-						title: "Photo Date: " + imgdate.substring( 4, 6 ) + "/" + imgdate.substring( 6, 8 ) + "/" + imgdate.substring( 0, 4 )
-						//title: "Photo Date: " + imgdate.substring( 4, 6 ) + "/" + imgdate.substring( 6, 8 ) + "/" + imgdate.substring( 0, 4 ) + "  Source: " + item.source + " (" + item.attribution + ")" 
+					
+					imageExists( item.photo_url.trim( ), function( success ){ 
+						if( success ){
+							propPhotoGallery.addPhoto( { 
+								url: item.photo_url.trim( ), 
+								photo_date: item.photo_date,
+								title: "Photo Date: " + imgdate.substring( 4, 6 ) + "/" + imgdate.substring( 6, 8 ) + "/" + imgdate.substring( 0, 4 )
+								//title: "Photo Date: " + imgdate.substring( 4, 6 ) + "/" + imgdate.substring( 6, 8 ) + "/" + imgdate.substring( 0, 4 ) + "  Source: " + item.source + " (" + item.attribution + ")" 
+							} );	
+						}
+						
 					} );
+					
 				}
 			}
 			
@@ -1009,16 +1015,6 @@ function setRiskInfo( data ){
 					source: "gis"
 				}
 			} ),
-			request.get( config.web_service_local + "v1/ws_cama_situsaddress.php", {
-				handleAs: "json",
-				headers: { "X-Requested-With": "" },
-				query: { pid: data.taxpid }
-			} ),
-			request.get( config.web_service_local + "v1/ws_cama_building.php", {
-				handleAs: "json",
-				headers: { "X-Requested-With": "" },
-				query: { pid: data.taxpid }
-			} ),
 			request.get( config.web_service_local + "v1/ws_geo_pointoverlay.php", {
 				handleAs: "json",
 				headers: { "X-Requested-With": "" },
@@ -1031,26 +1027,23 @@ function setRiskInfo( data ){
 					geometryfield: "shape",
 					source: "gis"
 				}
-			} )/*,
-			request.get( config.web_service_rest + "v3/ws_geo_pointoverlay.php", {
-				handleAs: "json",
-				query: 
-				{
-					"x": data.x,
-					"y": data.y,
-					"srid": "2264", 
-					"table": "jurisdiction", 
-					"fields": "lower( name ) as name",
-					"geometryfield": "the_geom"
-				}
-			} )*/
+			} )
 		] ).then( function( results ){
 			var femafldpdata = results[ 0 ],
 				commfldpdata = results[ 1 ],
-				situsdata = results[ 2 ],
-				bldgdata = results[ 3 ],
-				soidata = results[ 4 ];
-				//jurisdata = results[ 5 ];
+				soidata = results[ 2 ],
+				soi = ( soidata.length > 0 ? soidata[ 0 ].name : null ),
+				community_info = {
+					"charlotte": { no: "370159", name: "City of Charlotte" },
+					"davidson": { no: "370503", name: "Town of Davidson" }, 
+					"cornelius": { no: "370498", name: "Town of Cornelius" }, 
+					"huntersville": { no: "370478", name: "Town of Huntersville" }, 
+					"mint hill": { no: "370539", name: "Town of Mint Hill" }, 
+					"matthews": { no: "370310", name: "Town of Matthews" }, 
+					"pineville": { no: "370160", name: "Town of Pineville" },    
+					"mecklenburg": { no: "370158", name: "Unincorporated Mecklenburg County" }
+					
+				};
 
 			if( femafldpdata.length > 0 ){
 				//floodplain insurance needed, incase of floodplain insurance we don't have to worry about community floodplain
@@ -1067,10 +1060,14 @@ function setRiskInfo( data ){
 					//add floodzone info to FIRM info table
 					query( "#firmtable" ).append( "<tr><th>Floodzone</th><td>Zone AE</td></tr>" );
 				}
+				
+				//insurance message
+				if( soi && riskfacts.hasOwnProperty( soi ) ){
+					query( "#insurancefacts" ).append( boxit( riskfacts[ soi ].inside.insurance.fact, riskfacts[ soi ].inside.insurance.icon, "icont" ) );
+				
+				}
+				
 			}else{
-				//floodplain insurance not needed
-				query( "#insurancefacts" ).append( boxit( riskfacts.femafldp.outside.insurance.fact, riskfacts.femafldp.outside.insurance.icon, "icont" ) );
-			
 				if( commfldpdata.length > 0 ){ //only in community floodplain
 					query( "#summaryfacts" ).append( boxit( riskfacts.commfldp.inside.general.fact, riskfacts.commfldp.inside.general.icon, "icont" ) );
 					query( "#restrictionfacts" ).append( boxit( riskfacts.commfldp.inside.building.fact, riskfacts.commfldp.inside.building.icon, "icont" ) );
@@ -1082,66 +1079,22 @@ function setRiskInfo( data ){
 					//add floodzone info to FIRM info table
 					query( "#firmtable" ).append( "<tr><th>Floodzone</th><td>Zone X</td></tr>", "firmtable" );
 				}
-			}
-
-			if( situsdata.length > 0 ){
-				if( bldgdata.length > 0 ){
-					var yearbuilt = {
-						"CHARLOTTE":    1978, 
-						"UNINC": 	    1981, 
-						"DAVIDSON":     1981, 
-						"CORNELIUS":    1981, 
-						"HUNTERSVILLE": 2004, 
-						"MINT HILL":    2004, 
-						"MATTHEWS":     2004,
-						"PINEVILLE":    1987,
-					},
-					city = situsdata[ 0 ].city;
-
-					if( bldgdata[ 0 ].year_built < yearbuilt[ city ] ){
-						query( "#insurancefacts" ).append( boxit( riskfacts.prefirm.is.general.fact, riskfacts.prefirm.is.general.icon, "icont" ) );
-					}
-
-					if( femafldpdata.length > 0 ){
-						if( city == "CHARLOTTE" ){
-							query( "#insurancefacts" ).append( boxit( riskfacts.charlotte.inside.insurance.fact, riskfacts.charlotte.inside.insurance.icon, "icont" ) );
-						}else if( city == "PINEVILLE" ){
-							query( "#insurancefacts" ).append( boxit ( riskfacts.pineville.inside.insurance.fact, riskfacts.pineville.inside.insurance.icon, "icont" ) );
-						}		
-					}
+				
+				//insurance message
+				if( soi && riskfacts.hasOwnProperty( soi ) ){
+					query( "#insurancefacts" ).append( boxit( riskfacts[ soi ].outside.insurance.fact, riskfacts[ soi ].outside.insurance.icon, "icont" ) );
+				
 				}
-			}	
-
-			if( soidata.length > 0 ){
-				var soi = soidata[ 0 ].name,
-					communityno = {
-						"charlotte":    "370159", 
-						"davidson":     "370503", 
-						"cornelius":    "370498", 
-						"huntersville": "370478", 
-						"mint hill":    "370539", 
-						"matthews":     "370310", 
-						"pineville":    "370160",
-						"mecklenburg": 	"370158"
-					};
-
-				//add mappanel to FIRM info table
-				query( "#firmtable" ).append( "<tr><th>Community Number</th><td>" + communityno[ soi ] + "</td></tr>" );
+				
 			}
 
-			/*if( jurisdata.total_rows > 0 ){
-				var juris = jurisdata[ 0 ].name,
-					prefirmdate = {
-						"charlotte":    "08/15/78", 
-						"mecklenburg": 	"06/01/81", 
-						"davidson":     "06/01/81", 
-						"cornelius":    "06/01/81", 
-						"huntersville": "02/04/04", 
-						"mint hill":    "02/04/04", 
-						"matthews":     "02/04/04", 
-						"pineville":    "03/18/87"
-					};
-			}*/
+			if( soi ){
+				//add mappanel to FIRM info table
+				query( "#firmtable" ).append( "<tr><th>Community Number</th><td>" + community_info[ soi ].no + "</td></tr>" );
+				query( "#firmtable" ).append( "<tr><th>Community Name</th><td>" + community_info[ soi ].name + "</td></tr>" );
+				
+			}
+			
 		} );	
 						
 		// 2. Find if ground parcel in a floodway (both fema and community)
@@ -1419,13 +1372,16 @@ function setRiskInfo( data ){
 			handleAs: "json",
 			headers: { "X-Requested-With": "" },
 			query: {
-				table: "sde.elevation_certificates_pt",
+				/*table: "sde.elevation_certificates_pt",
 				fields: "id_elevation_certificate as elev_cert_id, " +
 						  "RTrim(latitude) as lat, RTrim(longitude) as lon, Ec_HyperLink as scanelevcert, " +
 						  "num_WSE100yrEX as wsel100, num_WSE100yrFU as wsel100fut, " + 
-						  "g10_community as fpe, ffe, c2_lowest_adjacent as lag",
+						  "g10_community as fpe, ffe, c2_lowest_adjacent as lag",*/
+				table: "sde.ec_v2_pt",
+				fields: "id_elevation_certificate as elev_cert_id, Ec_HyperLink as scanelevcert, " +
+							"eff_fema_bfe as wsel100, eff_community_bfe as wsel100fut, flood_protection_elev as fpe, ffe, c2f_lag as lag",
 				parameters : "ind_active = 1 and tax_pid ='" + guessPIDinMAT ( data.taxpid, data.groundpid ) + "'" + 
-					( data.matid ? " and uniqCertId = '" + data.matid + "'" : "" ),
+					( data.matid ? " and mat_id = '" + data.matid + "'" : "" ),
 				source : "floodmitigation"
 			}
 		} ).then( function( certdata ){

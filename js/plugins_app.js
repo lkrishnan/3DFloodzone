@@ -346,14 +346,6 @@ var riskfacts = {
 				"fact": "Community or FEMA floodplain occurs on this property. <a href ='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/Floodplain_Construction_Requirements.pdf' target='_blank'>Special building restrictions apply and permitting required</a>.",		
 				"icon": "info"
 			}
-		},
-		"outside":
-		{
-			"insurance":
-			{
-				"fact": "FEMA floodplain <u>does not</u> occur on this property and flood insurance is not required. However, <b>flood insurance is available at a very low rate for this location</b>.",
-				"icon": "info"	
-			}
 		}
 	},
 	"commfldp":
@@ -416,10 +408,39 @@ var riskfacts = {
 		{
 			"insurance":
 			{
-				"fact": "A flood insurance policy could be eligible for a 30% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
+				"fact": "A flood insurance policy could be eligible for a 35% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
 				"icon": "info"
 			}
-		}	
+		},
+		"outside":
+		{
+			"insurance":
+			{
+				"fact": "FEMA floodplain <u>does not</u> occur on this property and flood insurance is not required. However, <b>flood insurance is available at a 10% discount for this location</b>.",
+				"icon": "info"
+			}
+		}		
+		
+	},
+	"huntersville":
+	{
+		"inside":
+		{
+			"insurance":
+			{
+				"fact": "A flood insurance policy could be eligible for a 25% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
+				"icon": "info"
+			}
+		},
+		"outside":
+		{
+			"insurance":
+			{
+				"fact": "FEMA floodplain <u>does not</u> occur on this property and flood insurance is not required. However, <b>flood insurance is available at a 10% discount for this location</b>.",
+				"icon": "info"
+			}
+		}		
+		
 	},
 	"pineville":
 	{
@@ -427,10 +448,39 @@ var riskfacts = {
 		{
 			"insurance":
 			{
-				"fact": "A flood insurance policy could be eligible for a 20% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
+				"fact": "A flood insurance policy could be eligible for a 25% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
 				"icon": "info"
 			}
-		}	
+		},
+		"outside":
+		{
+			"insurance":
+			{
+				"fact": "FEMA floodplain <u>does not</u> occur on this property and flood insurance is not required. However, <b>flood insurance is available at a 10% discount for this location</b>.",
+				"icon": "info"
+			}
+		}		
+		
+	},
+	"mecklenburg":
+	{
+		"inside":
+		{
+			"insurance":
+			{
+				"fact": "A flood insurance policy could be eligible for a 25% discount. Contact your insurance agent for more information about adding this coverage to your homeowners’ policy.",
+				"icon": "info"
+			}
+		},
+		"outside":
+		{
+			"insurance":
+			{
+				"fact": "FEMA floodplain <u>does not</u> occur on this property and flood insurance is not required. However, <b>flood insurance is available at a 10% discount for this location</b>.",
+				"icon": "info"
+			}
+		}		
+		
 	},
 	"femaletter":
 	{
@@ -440,17 +490,6 @@ var riskfacts = {
 			{
 				"fact": "Building has been removed from floodplain by <a href='param1' target='_blank'>FEMA Letter</a>.", 
 				"icon": "tick"
-			}
-		}	
-	},
-	"prefirm":
-	{
-		"is":
-		{
-			"general":
-			{
-				"fact": "Property is <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/PreFIRM_PostFIRM.pdf' target='_blank'>Pre-FIRM</a>. Lower flood insurance rates may apply.", 
-				"icon": "info"
 			}
 		}	
 	},
@@ -469,7 +508,7 @@ var riskfacts = {
 	{
 		"level":
 		{
-			"fact": "Lowest floor is param1 feet param2 <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/FEMA_Base_Flood_Elevation.pdf' target='_blank'>FEMA base flood elevation</a>.", 
+			"fact": "Finished floor is param1 feet param2 <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/FEMA_Base_Flood_Elevation.pdf' target='_blank'>FEMA base flood elevation</a>.", 
 			"icon": "info"
 		},
 		"protection_elev":
