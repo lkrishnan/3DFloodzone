@@ -343,7 +343,7 @@ var riskfacts = {
 			},
 			"building":	
 			{
-				"fact": "Community or FEMA floodplain occurs on this property. <a href ='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/Floodplain_Construction_Requirements.pdf' target='_blank'>Special building restrictions apply and permitting required</a>.",		
+				"fact": "Community or FEMA floodplain occurs on this property. <a href ='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/Floodplain_Construction_Requirements.pdf' target='_blank'>Special building restrictions apply and permitting required</a>.",		
 				"icon": "info"
 			}
 		}
@@ -359,7 +359,7 @@ var riskfacts = {
 			},
 			"building":	
 			{
-				"fact": "Community or FEMA floodplain occurs on this property. <a href ='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/FEMA_Flodway_CEA_Building_Restrictions.pdf' target='_blank'>Special building restrictions apply and permitting required</a>.",		
+				"fact": "Community or FEMA floodplain occurs on this property. <a href ='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/FEMA_Flodway_CEA_Building_Restrictions.pdf' target='_blank'>Special building restrictions apply and permitting required</a>.",		
 				"icon": "info"
 			}
 		}
@@ -370,12 +370,12 @@ var riskfacts = {
 		{
 			"general":
 			{
-				"fact": "<a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/CEA_FEMA_Floodways.pdf' target='_blank'>Community enchroachment area or FEMA floodway</a> on property.", 
+				"fact": "<a href='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/CEA_FEMA_Floodways.pdf' target='_blank'>Community enchroachment area or FEMA floodway</a> on property.", 
 				"icon": "caution"
 			},
 			"building": 
 			{ 
-				"fact": "FEMA floodway/community enchroachment area occurs on this property. <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/FEMA_Flodway_CEA_Building_Restrictions.pdf' target='_blank'>Special building/grading restrictions apply</a>.", 
+				"fact": "FEMA floodway/community enchroachment area occurs on this property. <a href='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/FEMA_Flodway_CEA_Building_Restrictions.pdf' target='_blank'>Special building/grading restrictions apply</a>.", 
 				"icon": "info"	
 			}	
 		}	
@@ -386,7 +386,7 @@ var riskfacts = {
 		{
 			"building":
 			{
-				"fact": "Building is <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/non_compliant.pdf' target='_blank'>Non-compliant</a> with floodplain regulations.<b>Building restrictions apply</b>.", 
+				"fact": "Building is <a href='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/non_compliant.pdf' target='_blank'>Non-compliant</a> with floodplain regulations.<b>Building restrictions apply</b>.", 
 				"icon": "caution"
 			}
 		}	
@@ -397,7 +397,7 @@ var riskfacts = {
 		{
 			"building":
 			{
-				"fact": "Building on this parcel is <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/non_compliant.pdf' target='_blank'>Non-compliant</a>.<b> Future improvements restricted</b>.", 
+				"fact": "Building on this parcel is <a href='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/non_compliant.pdf' target='_blank'>Non-compliant</a>.<b> Future improvements restricted</b>.", 
 				"icon": "caution"
 			}
 		}	
@@ -508,7 +508,7 @@ var riskfacts = {
 	{
 		"level":
 		{
-			"fact": "Finished floor is param1 feet param2 <a href='https://mecklenburgcounty.exavault.com/p/stormwater/FloodZone%203D/FEMA_Base_Flood_Elevation.pdf' target='_blank'>FEMA base flood elevation</a>.", 
+			"fact": "Finished floor is param1 feet param2 <a href='https://mecklenburgcounty.hosted-by-files.com/stormwater/FloodZone%203D/FEMA_Base_Flood_Elevation.pdf' target='_blank'>FEMA base flood elevation</a>.", 
 			"icon": "info"
 		},
 		"protection_elev":

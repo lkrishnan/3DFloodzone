@@ -65,17 +65,16 @@ require( [
 		} );	
 
 		map.on ( "layers-add-result", function ( results ) {
-		
 			//get url arguments
-			if ( getURLParameter ( "matid" ) || getURLParameter ( "taxpid" ) || getURLParameter ( "groundpid" ) ) {
-			
+			if( getURLParameter( "matid" ) || getURLParameter( "pid" ) || getURLParameter( "gisid" ) ){
 				getInfo( {
 					"matid": ( getURLParameter ( "matid" ) ? getURLParameter ( "matid" ) : null ), 
-					"taxpid": ( getURLParameter ( "taxpid" ) ? getURLParameter ( "taxpid" ) : null ),
-					"groundpid": ( getURLParameter ( "groundpid" ) ? getURLParameter ( "groundpid" ) : null ),
+					"pid": ( getURLParameter ( "pid" ) ? getURLParameter ( "pid" ) : null ),
+					"gisid": ( getURLParameter ( "gisid" ) ? getURLParameter ( "gisid" ) : null ),
 					"address": null
+				
 				} );
-			
+
 			}
 		
 		} );
@@ -85,104 +84,97 @@ require( [
 		connect.subscribe ( "/set/information", setInfo ); 		
 			
 } );	
-		
+
 function getInfo( data ){
-	require( [ "dojo/request", "dojo/_base/connect", "dojo/_base/lang", "dojo/query",
-		"dojo/NodeList-manipulate" ], function( request, connect, lang, query ){
-		if( data.matid && data.taxpid && data.groundpid ){
-			//get master address point attributes
-			request.get( config.web_service_local + "v1/ws_attributequery.php", {
-				handleAs: "json",
-				headers: { "X-Requested-With": "" },
-				query: { 
-					table: "masteraddress_pt", 
-					fields: "full_address as address, ST_Y( shape ) as y, ST_X ( shape ) as x", 
-					parameters: "num_addr='" + data.matid + "'",
-					source: "gis"	
-				}
-			} ).then( function( result ){
-				if( result.length > 0 ){
-					//add address, x and y to the object
-					lang.mixin( data, result[ 0 ] );
-					
-					//publish
-					connect.publish( "/add/graphics", data );
-					connect.publish( "/set/information", data );					
-				}
-			} );
-		}else if( data.taxpid && data.groundpid ){
-			//get parcel centroid
-			request.get( config.web_service_local + "v1/ws_attributequery.php", {
-				handleAs: "json",
-				headers: { "X-Requested-With": "" },
-				query: { 
-					table: "parcels_py", 
-					fields: "ST_Y ( ST_PointOnSurface( shape ) ) as y, ST_X( ST_PointOnSurface( shape ) ) as x", 
-					parameters: "pid='" + data.groundpid + "'",
-					source: "gis"	
-				}
-			} ).then( function( result ){
-				if( result.length > 0 ){
-					//add x and y to the object
-					lang.mixin ( data, result[ 0 ] );
+	require( [ "dojo/request", "dojo/_base/connect", "dojo/_base/lang", "dojo/query", "dojo/NodeList-manipulate" ], function( request, connect, lang, query ){
+		request.get( config.gateway + "/api/bolt/v1/query", {	
+			handleAs: "json",
+			headers: { "X-Requested-With": "" },
+			query: data
+		} ).then( function( boltdata ){
+			if( boltdata.length > 0 ){
+				if( boltdata[ 0 ].hasOwnProperty( "mat" ) ){
+					var idx = -1
+
+					if( data.hasOwnProperty( "matid" ) )
+						idx = boltdata[ 0 ].mat.findIndex( row => row.matid === data.matid )
+
+					data.matid = boltdata[ 0 ].mat[ ( idx < 0 ? 0 : idx ) ].matid
+					data.address = boltdata[ 0 ].mat[ ( idx < 0 ? 0 : idx ) ].address
+					data.x = boltdata[ 0 ].mat[ ( idx < 0 ? 0 : idx ) ].x
+					data.y = boltdata[ 0 ].mat[ ( idx < 0 ? 0 : idx ) ].y
 										
-					//publish
-					connect.publish ( "/add/graphics", data );
-					connect.publish ( "/set/elevdata", data );				
-										
-				} 
-			} );
-		}
-	} );	
+				}else{
+					data.x = boltdata[ 0 ].centroid_x
+					data.y = boltdata[ 0 ].centroid_y
+
+				}
+
+				//publish
+				connect.publish( "/add/graphics", data );
+				connect.publish( "/set/information", data );
+
+			}else{
+				na( "identity" );
+				na( "photo" );
+				na( "elevdata" );
+				query( "#legend" ).innerHTML( "<img src = 'image/print_legend.jpg' />" );
+
+			}
+
+		} )
+
+	} );
+
 }
 
 function setInfo( data ){
 	require( [ "dojo/query", "dojo/NodeList-manipulate" ], function( query ){
 		var htmlstr = "";
-		if( data.taxpid ){
-			htmlstr += "Parcel ID - " + data.taxpid;
-		}
+		if( data.taxpid )
+			htmlstr += "Parcel ID - " + data.pid;
 			
-		if( data.address ){
+		if( data.address )
 			htmlstr += "\rAddress - " + data.address;
-		}
-			
+					
 		query ( "#notes" ).innerHTML ( htmlstr );	
+
 	} );
+
 }
 
 //add vector graphics to the map.
 function addGraphics( data ){
-	if( data.hasOwnProperty( "groundpid" ) ){ 
+	if( data.hasOwnProperty( "gisid" ) ){ 
 		//remove parcel graphic
-		if( parcelGraphic ){
-			map.graphics.remove( parcelGraphic );
-		} 
-			
-		require( [ "dojo/request", "esri/graphic", "esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol", 
-			"esri/SpatialReference", "esri/geometry/Point", 
-			"dojo/_base/Color" ], function( request, Graphic, SimpleFillSymbol, SimpleLineSymbol, SpatialReference, Point, Color ){
-			request.get( config.web_service_local + "v1/ws_attributequery.php", {
+		if( parcelGraphic )
+			map.graphics.remove ( parcelGraphic );
+		
+		require( [ "dojo/request", "esri/graphic", "esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol", "esri/SpatialReference", "esri/geometry/Point", "dojo/_base/Color" ], 
+			function( request, Graphic, SimpleFillSymbol, SimpleLineSymbol, SpatialReference, Point, Color ){
+			request.get( `${config.gateway}/api/gis/v1/query/parcels_py`, {
 				handleAs: "json",
 				headers: { "X-Requested-With": "" },
 				query: { 
-					table: "parcels_py", 
-					fields: "ST_AsText ( shape ) as parcelgeom", 
-					parameters: "pid='" + data.groundpid + "'",
-					source: "gis"
+					columns: "ST_AsText ( shape ) as parcelgeom", 
+					filter: `pid='${data.gisid}'`
 				}
+
 			} ).then( function( parceldata ){
 				if( parceldata.length > 0 ){
 					//add parcel feature to map
 					parcelGraphic = new Graphic( parseGeomTxt( parceldata[ 0 ].parcelgeom ), 
-						new SimpleFillSymbol( SimpleFillSymbol.STYLE_SOLID, new SimpleLineSymbol( SimpleLineSymbol.STYLE_SOLID, new Color ( [ 0, 255, 102 ] ), 3 ), new Color ( [ 0, 255, 102, 0 ] ) ) ) ;
+						new SimpleFillSymbol( SimpleFillSymbol.STYLE_SOLID, new SimpleLineSymbol( SimpleLineSymbol.STYLE_SOLID, new Color( [ 0, 255, 102 ] ), 3 ), new Color( [ 0, 255, 102, 0 ] ) ) ) ;
 					map.graphics.add( parcelGraphic );	
-													
 					//zoom to add feature
 					zoom.toCenter( new Point( data.x, data.y, new SpatialReference( config.initial_extent.spatialReference ) ), 7 );
+
 				}
+
 			} );
-				
-		} );	
-	}		
+
+		} );
+
+	}	
+
 }

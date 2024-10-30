@@ -32,26 +32,15 @@ var format = {
 		
 	},
 	
-	ownerlist: function ( ownerlist ) {
-	
-		var ownerhtml;
+	arrAslist: function( arr, prop ){
+		var html = "1. " + arr[ 0 ][ prop ];
 		
-		require ( [ "dojo/_base/lang" ], function ( lang ) {	
-	
-			var owners = lang.trim ( ownerlist ).split( "|" );
-			ownerhtml = "1. " + owners[ 0 ].replace ( ";", ", " );
-			for ( l = 1;l < owners.length; l++ ) { 
-				
-				if ( lang.trim ( owners[ l ] ).length > 0 )
-					ownerhtml += "<br/>" + parseInt ( l + 1, 10 ) + ". " + owners[ l ].replace( ";", ", " );
-			
-			}
-			
-		} );	
-			
-		return ownerhtml;	
-			
-
+		for( l = 1;l < ( arr.length > 3 ? 3 : arr.length ); l++ ){
+			html += "<br/>" + parseInt ( l + 1, 10 ) + ". " + arr[ l ][ prop ];
+		
+		}
+		
+		return html;	
 		
 	},
 	
@@ -222,6 +211,8 @@ var format = {
 
 		return readableDate; 
 		
-	}	
+	},
+	
+	theDate: dateString => new Date( dateString ).toLocaleDateString( "en-US", { month: "2-digit", day: "2-digit", year: "numeric" } )
 	
 }

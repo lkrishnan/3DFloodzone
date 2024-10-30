@@ -474,14 +474,18 @@ function mapCtrlsInit( ){
 						
 							if( results.length > 0 ){
 								results.forEach( function( item, i ){
-									if( item.feature.attributes[ "Pixel Value" ] != "NoData" ){
-										query( ".tbMain table tbody tr:last-child td:nth-child(" + ( i + 2 ) + ")" ).innerHTML( format.number( item.feature.attributes[ "Pixel Value" ], 1 ) );
-									}															
+									if( item.feature.attributes[ "Stretch.Pixel Value" ] != "NoData" )
+										query( ".tbMain table tbody tr:last-child td:nth-child(" + ( i + 2 ) + ")" ).innerHTML( format.number( item.feature.attributes[ "Stretch.Pixel Value" ], 1 ) );
+																								
 								} );
 							}
+
 						} );
+
 						break;
+
 				}	
+
 			} );
 									
 			geometryService.on( "lengths-complete", function( event ){
@@ -528,7 +532,7 @@ function clickAndSelect( event ){
 		require( [ "dojo/query", "dojo/NodeList-manipulate" ], function( query ){
 			if( typeof( event.graphic ) == "undefined" ){
 				//do search based on lat lon
-				finder( { "y" : event.mapPoint.y, "x" : event.mapPoint.x } );
+				finder( { "xy": `${event.mapPoint.x},${event.mapPoint.y}` } );
 
 				//do not zoom to graphics added to map
 				zoomToGraphic = false;					
@@ -544,11 +548,10 @@ function clickAndSelect( event ){
 function addGraphics( data ){
 	var selectionLayer = agsServices[ serviceNames.indexOf( "selection" ) ];
 	
-	if( locationGraphic ){ //remove location graphic
+	if( locationGraphic ) //remove location graphic
 		selectionLayer.remove ( locationGraphic );
-	} 
-		
-	if( data.hasOwnProperty( "groundpid" ) ){ //get ground parcel geometry and add it to map
+	 		
+	if( data.hasOwnProperty( "gisid" ) ){ //get ground parcel geometry and add it to map
 		if( parcelGraphic ){ //remove parcel graphic
 			selectionLayer.remove( parcelGraphic );
 		} 
@@ -556,15 +559,14 @@ function addGraphics( data ){
 		require( [ "dojo/request", "esri/graphic", "esri/symbols/SimpleFillSymbol", 
 			"esri/symbols/SimpleLineSymbol", "esri/SpatialReference", "esri/geometry/Point", 
 			"dojo/_base/Color" ], function( request, Graphic, SimpleFillSymbol, SimpleLineSymbol, SpatialReference, Point, Color ){
-			request.get( config.web_service_local + "v1/ws_attributequery.php", {
+			request.get( `${config.gateway}/api/gis/v1/query/parcels_py`, {
 				handleAs: "json",
 				headers: { "X-Requested-With": "" },
 				query: { 
-					table: "parcels_py", 
-					fields: "ST_AsText ( shape ) as parcelgeom", 
-					parameters: "pid='" + data.groundpid + "'",
-					source: "gis"
+					columns: "ST_AsText ( shape ) as parcelgeom", 
+					filter: `pid='${data.gisid}'`
 				}
+
 			} ).then( function( parceldata ){
 				if( parceldata.length > 0 ){
 					//add parcel feature to map
@@ -588,11 +590,14 @@ function addGraphics( data ){
 						} 	
 						
 						zoom.toExtent( extent );
-						//zoom.toCenter ( new Point ( data.x, data.y, new SpatialReference( config.initial_extent.spatialReference ) ), 7 );	
+					
 					}
-				}		
+				}	
+
 			} );
-		} );		
+
+		} );
+
 	}else{ //add a location to the map
 		require( [ "esri/graphic", "esri/geometry/Point", 
 			"esri/symbols/PictureMarkerSymbol", "esri/SpatialReference" ], function( Graphic, Point, PictureMarkerSymbol, SpatialReference ){
@@ -602,11 +607,13 @@ function addGraphics( data ){
 			selectionLayer.add( locationGraphic );	
 				
 			//zoom to add feature
-			if( zoomToGraphic ){
+			if( zoomToGraphic )
 				zoom.toCenter( new Point( data.x, data.y, new SpatialReference( config.initial_extent.spatialReference ) ), 7 );	
-			}
+			
 		} );	
+
 	} 	
+
 }
 
 /* Layer Switcher */
@@ -614,12 +621,13 @@ function layerSwitcherZoomCheck( ){ //enable/disable layer list checkboxes based
 	$.each( config.overlay_controls, function( index ){
 		var zoom = map.getZoom( );
 		
-		if( zoom > this.maxZoom || zoom < this.minZoom ){ 
+		if( zoom > this.maxZoom || zoom < this.minZoom )
 			$( "#" + index ).prop( "disabled", true ).next( ).css( "color", "#D1D0CC" );
-		}else{ 
+		else
 			$( "#" + index ).prop( "disabled", false ).next( ).css( "color", "inherit" );
-		}	
+			
 	} );
+
 }
 
 $( ".switcher" ).on( "change", ".layer", function( ){
@@ -627,11 +635,12 @@ $( ".switcher" ).on( "change", ".layer", function( ){
 	var overlay_control = config.overlay_controls[ $( this ).prop( "id" ) ],
 		service =  agsServices[ serviceNames.indexOf( overlay_control.service ) ];
 		
-	if( overlay_control.featurelyr ){ //feature layer
+	if( overlay_control.featurelyr ) //feature layer
 		service.setVisibility( $( this ).prop( "checked" ) );
-	}else{ //static map layer
+
+	else //static map layer
 		alterVisibleLayersInService( service, overlay_control.lyrs, ( $( this ).prop( "checked" ) ? "add": "remove" ) );
-	}
+	
 } );
 
 $( ".switcher" ).on( "change", ".fmap", function( ){
@@ -658,8 +667,8 @@ $( ".switcher" ).on( "change", ".fmap", function( ){
 	
 	//disable the 3dfloodzone slider
 	$( "#3dctrl" ).slider( "option", "disabled", ( ( $( this ).prop( "id" ) == "3d_floodzone" && $( this ).prop( "checked" ) ) ? false : true ) );
-	$ ( "#play, #stop" ).button ( 
-		{ disabled: ( ( $( this ).prop( "id" ) == "3d_floodzone" && $( this ).prop( "checked" ) ) ? false : true ) } );
+	$ ( "#play, #stop" ).button ( { disabled: ( ( $( this ).prop( "id" ) == "3d_floodzone" && $( this ).prop( "checked" ) ) ? false : true ) } );
+
 } );
 
 function playloop( ){

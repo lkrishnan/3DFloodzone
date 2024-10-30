@@ -23,7 +23,6 @@ var web_dir = ".",
 			web_dir + "/js/map.js",
 			web_dir + "/js/plugins.js",
 			web_dir + "/js/plugins_app.js",
-			web_dir + "/js/standardize_address.js",
 			web_dir + "/js/validate.js",
 		],
 		
@@ -114,9 +113,9 @@ gulp.task( "rootfiles", function( ){
 //push html files to build after processing
 gulp.task( "replace_3dfz", function( ){
     return gulp.src( web_dir + "/index.html" )
-		.pipe( replace ( /<script src="js\/config.js"><\/script><script src="js\/format.js"><\/script><script src="js\/main.js"><\/script><script src="js\/map.js"><\/script><script src="js\/plugins.js"><\/script><script src="js\/plugins_app.js"><\/script><script src="js\/standardize_address.js"><\/script><script src="js\/validate.js"><\/script>/g, "<script src=\"js/3dfz.js?foo=99999\"></script>" ) )
+		.pipe( replace ( /<script src="js\/config.js"><\/script><script src="js\/format.js"><\/script><script src="js\/main.js"><\/script><script src="js\/map.js"><\/script><script src="js\/plugins.js"><\/script><script src="js\/plugins_app.js"><\/script><script src="js\/validate.js"><\/script>/g, "<script src=\"js/3dfz.js?foo=99999\"></script>" ) )
 		.pipe( replace ( /foo=[0-9]*/g, "foo=" + Math.floor ( ( Math.random() * 100000 ) + 1 ) ) )
-		.pipe( replace ( /http:\/\/localhost\/mojo/g, "https://maps.mecklenburgcountync.gov/mojo" ) ) 
+		.pipe( replace ( /http:\/\/localhost\/mojo/g, "https://gis.mecklenburgcountync.gov/mojo" ) ) 
 		.pipe( gulp.dest ( "build/" ) );
 } );
 
@@ -153,5 +152,5 @@ gulp.task( "default", gulp.series( "scripts_3dfz", "scripts_elev", "scripts_prin
 //publish website
 gulp.task( "publish", function( ){
 	return gulp.src( "build/**/*.*" )
-	.pipe( gulp.dest ( "//gisags2v/c$/inetpub/wwwroot/3dfz" ) );
+	.pipe( gulp.dest ( "//sus-gis-p-app1/c$/inetpub/wwwroot/3dfz" ) );
 } );

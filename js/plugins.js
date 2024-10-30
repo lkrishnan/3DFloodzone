@@ -11,15 +11,13 @@ function showSidebar ( cont, btn ) {
 }
 
 //get url parameter
-function getURLParameter ( name ) {
-    
-	return decodeURIComponent ( ( new RegExp ('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec ( location.search ) || [, ""] )[ 1 ].replace( /\+/g, '%20' ) ) || null;
+function getURLParameter( name ){
+    return decodeURIComponent ( ( new RegExp ('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec ( location.search ) || [, ""] )[ 1 ].replace( /\+/g, '%20' ) ) || null;
 
 }
 
 //function that makes the fact box
-function boxit ( txt, icon, cssclass, params ) {
-
+function boxit( txt, icon, cssclass, params ){
 	var htmlstr = "<div class = '" + cssclass + "'><table><tr>";
 	
 	//add descriptive icon
@@ -37,8 +35,7 @@ function boxit ( txt, icon, cssclass, params ) {
 }
 
 //used by boxit
-function replaceparams ( txt, params ) {
-
+function replaceparams( txt, params ){
 	for ( var i = 0; i < params.length; i++ )
 		txt = txt.replace ( "param" + ( i + 1 ), params[ i ] );
 		
@@ -80,8 +77,7 @@ function parseGeomTxt( geomtxt ){
 /* Finders */
 /**************/
 //check if a particular element is in an array. mainly used for quick tips
-function inArray ( arr, val ) {
-
+function inArray( arr, val ){
 	var retval = false;
 	for ( var i = 0; i < arr.length; i++ ) {
 	
@@ -91,49 +87,9 @@ function inArray ( arr, val ) {
     	}    	 
    
    }
+
 	return retval;
-}
 
-//guess the best possible pid that would be used in the master address table
-function guessPIDinMAT ( taxpid, groundpid ) {
-	
-	var pid;
-	
-	if ( is8Number ( taxpid ) ) {
-	
-		pid = taxpid;
-	
-	} else if ( is8Number ( groundpid ) ) {	
-		
-		pid = groundpid;
-	
-	} else {
-	
-		pid = taxpid.substr ( 0 , 8 );
-		
-	}	
-			
-	return pid;
-	
-}
-
-function getBestMatchingAddr ( address, checkArr ) {
-
-	var match_arr = [];
-	
-	for ( var i=0; i < checkArr.length; i++ ) {
-	
-		var match = 0;
-		var temp = checkArr[ i ].split( "|" );
-		for ( var j = 0; j < temp.length; j++ ) 
-			match += address.indexOf ( temp[ j ] ) + 1;
-		
-		match_arr.push ( match );
-		
-	}
-	
-	return match_arr.indexOf ( Math.max.apply ( window, match_arr ) );
-	
 }
 
 //used by boxit
@@ -144,15 +100,15 @@ function getDynLink ( type, params ) {
 	switch ( type ) {
 	
 		case "firm" :
-			link = "https://mecklenburgcounty.exavault.com/p/stormwater/Floodplain%20Mapping/Effective%20Data/FIRM%20Panels/" + params.filename + ".pdf"
+			link = "https://mecklenburgcounty.hosted-by-files.com/stormwater/Floodplain%20Mapping/Effective%20Data/FIRM%20Panels/" + params.filename + ".pdf"
 			break;
 			
 		case "elevcert" :
-			link = "https://mecklenburgcounty.exavault.com/p/stormwater/Adobe%20ECs/" + params.filename;
+			link = "https://mecklenburgcounty.hosted-by-files.com/stormwater/Adobe%20ECs/" + params.filename;
 			break;	
 			
 		case "loma" :
-			link = "https://mecklenburgcounty.exavault.com/p/stormwater/Adobe%20LOMR/" + params.filename + ".pdf";
+			link = "https://mecklenburgcounty.hosted-by-files.com/stormwater/Adobe%20LOMR/" + params.filename + ".pdf";
 			break;
 	}
 	
@@ -272,29 +228,3 @@ var zoom = {
 	}
 	
 };
-
-function switchQueryParams ( url, switchParams ) {
-	
-	var queryParameters = { },
-		urlArray = url.split ( "?" ),
-		re = /([^&=]+)=([^&]*)/g, m;
- 
-	// Creates a map with the query string parameters
-	while ( m = re.exec ( urlArray[ 1 ] ) ) {
-		
-		queryParameters [ decodeURIComponent ( m [ 1 ] ) ] = decodeURIComponent ( m [ 2 ] );
-	
-	}
-	
-
- 
-	// Add new parameters or update existing ones
-	for ( var key in  switchParams ) {
-		
-		queryParameters [ key ] = switchParams [ key ];
-
-	}		
-		
-	return urlArray [ 0 ] + "?" + $.param ( queryParameters ); // Causes page to reload
-	
-}
